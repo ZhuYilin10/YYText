@@ -30,6 +30,7 @@ NSString *const YYTextBackedStringAttributeName = @"YYTextBackedString";
 NSString *const YYTextBindingAttributeName = @"YYTextBinding";
 NSString *const YYTextShadowAttributeName = @"YYTextShadow";
 NSString *const YYTextInnerShadowAttributeName = @"YYTextInnerShadow";
+NSString *const YYTextUnderdotAttributeName = @"YYTextUnderdot";
 NSString *const YYTextUnderlineAttributeName = @"YYTextUnderline";
 NSString *const YYTextStrikethroughAttributeName = @"YYTextStrikethrough";
 NSString *const YYTextBorderAttributeName = @"YYTextBorder";
@@ -103,6 +104,7 @@ YYTextAttributeType YYTextAttributeGetType(NSString *name){
         dic[YYTextBindingAttributeName] = YYText;
         dic[YYTextShadowAttributeName] = YYText;
         dic[YYTextInnerShadowAttributeName] = YYText;
+        dic[YYTextUnderdotAttributeName] = YYText;
         dic[YYTextUnderlineAttributeName] = YYText;
         dic[YYTextStrikethroughAttributeName] = YYText;
         dic[YYTextBorderAttributeName] = YYText;
@@ -498,6 +500,10 @@ YYTextAttributeType YYTextAttributeGetType(NSString *name){
 
 - (void)setInnerShadow:(YYTextShadow *)shadow {
     [self setTextAttribute:YYTextInnerShadowAttributeName value:shadow];
+}
+
+- (void)setUnderdot:(YYTextDecoration *)underdot {
+    [self setTextAttribute:YYTextUnderdotAttributeName value:underdot];
 }
 
 - (void)setUnderline:(YYTextDecoration *)underline {

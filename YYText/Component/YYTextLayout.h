@@ -257,6 +257,8 @@ extern const CGSize YYTextContainerMaxSize;
 @property (nonatomic, readonly) BOOL needDrawBackgroundBorder;
 ///< Has shadow attribute
 @property (nonatomic, readonly) BOOL needDrawShadow;
+///< Has underdot attribute
+@property (nonatomic, readonly) BOOL needDrawUnderdot;
 ///< Has underline attribute
 @property (nonatomic, readonly) BOOL needDrawUnderline;
 ///< Has visible text

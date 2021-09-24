@@ -538,6 +538,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nullable, nonatomic, strong, readonly) YYTextDecoration *yy_textUnderline;
 - (nullable YYTextDecoration *)yy_textUnderlineAtIndex:(NSUInteger)index;
+@property (nullable, nonatomic, strong, readonly) YYTextDecoration *yy_textUnderdot;
+- (nullable YYTextDecoration *)yy_textUnderdotAtIndex:(NSUInteger)index;
 
 /**
  The text strikethrough. (read-only)
@@ -1236,6 +1238,8 @@ NS_ASSUME_NONNULL_BEGIN
              Get this property returns the first character's attribute.
  @since YYText:6.0
  */
+@property (nullable, nonatomic, strong, readwrite) YYTextDecoration *yy_textUnderdot;
+- (void)yy_setTextUnderdot:(nullable YYTextDecoration *)textUnderdot range:(NSRange)range;
 @property (nullable, nonatomic, strong, readwrite) YYTextDecoration *yy_textUnderline;
 - (void)yy_setTextUnderline:(nullable YYTextDecoration *)textUnderline range:(NSRange)range;
 

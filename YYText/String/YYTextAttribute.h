@@ -34,6 +34,7 @@ typedef NS_OPTIONS (NSInteger, YYTextLineStyle) {
     YYTextLineStyleNone       = 0x00, ///< (        ) Do not draw a line (Default).
     YYTextLineStyleSingle     = 0x01, ///< (──────) Draw a single line.
     YYTextLineStyleThick      = 0x02, ///< (━━━━━━━) Draw a thick line.
+    YYTextLineStyleUnderdot   = 0x03, ///< (•) Draw a single line.
     YYTextLineStyleDouble     = 0x09, ///< (══════) Draw a double line.
     
     // style pattern (bitmask:0xF00)
@@ -107,6 +108,7 @@ UIKIT_EXTERN NSString *const YYTextInnerShadowAttributeName;
 /// The value of this attribute is a `YYTextDecoration` object.
 /// Use this attribute to add underline to a range of text.
 /// The underline will be drawn below text glyphs.
+UIKIT_EXTERN NSString *const YYTextUnderdotAttributeName;
 UIKIT_EXTERN NSString *const YYTextUnderlineAttributeName;
 
 /// The value of this attribute is a `YYTextDecoration` object.
@@ -319,6 +321,7 @@ typedef void(^YYTextAction)(UIView *containerView, NSAttributedString *text, NSR
 - (void)setStrokeColor:(nullable UIColor *)color;
 - (void)setShadow:(nullable YYTextShadow *)shadow;
 - (void)setInnerShadow:(nullable YYTextShadow *)shadow;
+- (void)setUnderdot:(nullable YYTextDecoration *)underdot;
 - (void)setUnderline:(nullable YYTextDecoration *)underline;
 - (void)setStrikethrough:(nullable YYTextDecoration *)strikethrough;
 - (void)setBackgroundBorder:(nullable YYTextBorder *)border;

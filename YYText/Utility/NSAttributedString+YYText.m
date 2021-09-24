@@ -492,8 +492,16 @@ return style. _attr_;
     return [self yy_attribute:YYTextInnerShadowAttributeName atIndex:index];
 }
 
+- (YYTextDecoration *)yy_textUnderdot {
+    return [self yy_textUnderdotAtIndex:0];
+}
+
 - (YYTextDecoration *)yy_textUnderline {
     return [self yy_textUnderlineAtIndex:0];
+}
+
+- (YYTextDecoration *)yy_textUnderdotAtIndex:(NSUInteger)index {
+    return [self yy_attribute:YYTextUnderdotAttributeName atIndex:index];
 }
 
 - (YYTextDecoration *)yy_textUnderlineAtIndex:(NSUInteger)index {
@@ -717,6 +725,7 @@ return style. _attr_;
         }
         [failSet addObject:YYTextShadowAttributeName];
         [failSet addObject:YYTextInnerShadowAttributeName];
+        [failSet addObject:YYTextUnderdotAttributeName];
         [failSet addObject:YYTextUnderlineAttributeName];
         [failSet addObject:YYTextStrikethroughAttributeName];
         [failSet addObject:YYTextBorderAttributeName];
@@ -946,6 +955,10 @@ return style. _attr_;
 
 - (void)setYy_textInnerShadow:(YYTextShadow *)textInnerShadow {
     [self yy_setTextInnerShadow:textInnerShadow range:NSMakeRange(0, self.length)];
+}
+
+- (void)setYy_textUnderdot:(YYTextDecoration *)textUnderdot {
+    [self yy_setTextUnderdot:textUnderdot range:NSMakeRange(0, self.length)];
 }
 
 - (void)setYy_textUnderline:(YYTextDecoration *)textUnderline {
@@ -1238,6 +1251,10 @@ return style. _attr_;
 
 - (void)yy_setTextInnerShadow:(YYTextShadow *)textInnerShadow range:(NSRange)range {
     [self yy_setAttribute:YYTextInnerShadowAttributeName value:textInnerShadow range:range];
+}
+
+- (void)yy_setTextUnderdot:(YYTextDecoration *)textUnderdot range:(NSRange)range {
+    [self yy_setAttribute:YYTextUnderdotAttributeName value: textUnderdot range:range];
 }
 
 - (void)yy_setTextUnderline:(YYTextDecoration *)textUnderline range:(NSRange)range {

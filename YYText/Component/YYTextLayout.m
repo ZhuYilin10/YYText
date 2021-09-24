@@ -331,6 +331,7 @@ dispatch_semaphore_signal(_lock);
 @property (nonatomic, readwrite) BOOL needDrawBlockBorder;
 @property (nonatomic, readwrite) BOOL needDrawBackgroundBorder;
 @property (nonatomic, readwrite) BOOL needDrawShadow;
+@property (nonatomic, readwrite) BOOL needDrawUnderdot;
 @property (nonatomic, readwrite) BOOL needDrawUnderline;
 @property (nonatomic, readwrite) BOOL needDrawText;
 @property (nonatomic, readwrite) BOOL needDrawAttachment;
@@ -825,6 +826,7 @@ dispatch_semaphore_signal(_lock);
             if (attrs[YYTextBlockBorderAttributeName]) layout.needDrawBlockBorder = YES;
             if (attrs[YYTextBackgroundBorderAttributeName]) layout.needDrawBackgroundBorder = YES;
             if (attrs[YYTextShadowAttributeName] || attrs[NSShadowAttributeName]) layout.needDrawShadow = YES;
+            if (attrs[YYTextUnderdotAttributeName]) layout.needDrawUnderdot = YES;
             if (attrs[YYTextUnderlineAttributeName]) layout.needDrawUnderline = YES;
             if (attrs[YYTextAttachmentAttributeName]) layout.needDrawAttachment = YES;
             if (attrs[YYTextInnerShadowAttributeName]) layout.needDrawInnerShadow = YES;
@@ -2173,6 +2175,7 @@ fail:
 typedef NS_OPTIONS(NSUInteger, YYTextDecorationType) {
     YYTextDecorationTypeUnderline     = 1 << 0,
     YYTextDecorationTypeStrikethrough = 1 << 1,
+    YYTextDecorationTypeUnderdot     = 1 << 2,
 };
 
 typedef NS_OPTIONS(NSUInteger, YYTextBorderType) {
@@ -2852,17 +2855,21 @@ static void YYTextDrawDecoration(YYTextLayout *layout, CGContextRef context, CGS
             if (glyphCount == 0) continue;
             
             NSDictionary *attrs = (id)CTRunGetAttributes(run);
+            YYTextDecoration *underdot = attrs[YYTextUnderdotAttributeName];
             YYTextDecoration *underline = attrs[YYTextUnderlineAttributeName];
             YYTextDecoration *strikethrough = attrs[YYTextStrikethroughAttributeName];
             
-            BOOL needDrawUnderline = NO, needDrawStrikethrough = NO;
+            BOOL needDrawUnderdot = NO, needDrawUnderline = NO, needDrawStrikethrough = NO;
+            if ((type & YYTextDecorationTypeUnderdot) && underdot.style > 0) {
+                needDrawUnderdot = YES;
+            }
             if ((type & YYTextDecorationTypeUnderline) && underline.style > 0) {
                 needDrawUnderline = YES;
             }
             if ((type & YYTextDecorationTypeStrikethrough) && strikethrough.style > 0) {
                 needDrawStrikethrough = YES;
             }
-            if (!needDrawUnderline && !needDrawStrikethrough) continue;
+            if (!needDrawUnderdot && !needDrawUnderline && !needDrawStrikethrough) continue;
             
             CFRange runRange = CTRunGetStringRange(run);
             if (runRange.location == kCFNotFound || runRange.length == 0) continue;
@@ -2894,7 +2901,57 @@ static void YYTextDrawDecoration(YYTextLayout *layout, CGContextRef context, CGS
                 underlineStart.x = strikethroughStart.x = runPosition.x + line.position.x;
                 length = CTRunGetTypographicBounds(run, CFRangeMake(0, 0), NULL, NULL, NULL);
             }
-            
+
+            if (needDrawUnderdot) {
+                CGPoint glyphPositions[glyphCount];
+                CTRunGetPositions(run, CFRangeMake(0, glyphCount), glyphPositions);
+
+                CGSize glyphAdvances[glyphCount];
+                CTRunGetAdvances(run, CFRangeMake(0, glyphCount), glyphAdvances);
+
+                CGPoint runPosition = glyphPositions[0];
+                if (isVertical) {
+                    YYTEXT_SWAP(runPosition.x, runPosition.y);
+                    runPosition.x = line.position.x;
+                    runPosition.y += line.position.y;
+                } else {
+                    runPosition.x += line.position.x;
+                    runPosition.y = line.position.y - runPosition.y;
+                }
+
+                CGFloat ascent, descent, leading;
+                CGFloat width = CTRunGetTypographicBounds(run, CFRangeMake(0, 0), &ascent, &descent, &leading);
+                CGRect runTypoBounds;
+                if (isVertical) {
+                    runTypoBounds = CGRectMake(runPosition.x - descent, runPosition.y, ascent + descent, width);
+                } else {
+                    runTypoBounds = CGRectMake(runPosition.x, line.position.y - ascent, width, ascent + descent);
+                }
+
+                for (NSUInteger g = 0; g < glyphCount; g++) {
+                    CGPoint pos = glyphPositions[g];
+                    CGSize adv = glyphAdvances[g];
+                    CGRect rect;
+                    if (isVertical) {
+                        YYTEXT_SWAP(pos.x, pos.y);
+                        pos.x = runPosition.x;
+                        pos.y += line.position.y;
+                        rect = CGRectMake(pos.x - descent, pos.y, runTypoBounds.size.width, adv.width);
+                    } else {
+                        pos.x += line.position.x;
+                        pos.y = runPosition.y;
+                        rect = CGRectMake(pos.x, pos.y - ascent, adv.width, runTypoBounds.size.height);
+                    }
+
+                    CGRect tmp = YYTextCGRectPixelHalf(rect);
+                    tmp.size.width = 5;
+                    tmp.size.height = 5;
+                    tmp.origin.x = tmp.origin.x + rect.size.width / 2 - 2.5;
+                    tmp.origin.y = tmp.origin.y + rect.size.height;
+                    CGContextFillEllipseInRect(context, tmp);
+                }
+            }
+
             if (needDrawUnderline) {
                 CGColorRef color = underline.color.CGColor;
                 if (!color) {
@@ -3348,6 +3405,10 @@ static void YYTextDrawDebug(YYTextLayout *layout, CGContextRef context, CGSize s
         if (self.needDrawShadow && context) {
             if (cancel && cancel()) return;
             YYTextDrawShadow(self, context, size, point, cancel);
+        }
+        if (self.needDrawUnderdot && context) {
+            if (cancel && cancel()) return;
+            YYTextDrawDecoration(self, context, size, point, YYTextDecorationTypeUnderdot, cancel);
         }
         if (self.needDrawUnderline && context) {
             if (cancel && cancel()) return;
